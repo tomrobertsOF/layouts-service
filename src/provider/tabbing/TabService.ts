@@ -169,6 +169,17 @@ export class TabService {
     }
 
     /**
+     * Allows a window to opt-out of this service. This will disable all tabbing-related functionality for the given window.
+     * @param identity Identity of the window to deregister
+     */
+    public async deregister(identity: TabIdentifier) {
+        const tabGroup = this.getTabGroupByApp(identity);
+        if (tabGroup) {
+            await tabGroup.removeTab(identity, false, true);
+        }
+    }
+
+    /**
      * Returns the array index of a tab group.
      * @param ID ID of the tab group to search.
      * @returns {number} Index number.

@@ -1,19 +1,19 @@
-import {SnapGroup} from './snapanddock/SnapGroup';
-import {SnapService} from './snapanddock/SnapService';
-import {SnapWindow, WindowIdentity} from './snapanddock/SnapWindow';
-import {win10Check} from './snapanddock/utils/platform';
-import {TabService} from './tabbing/TabService';
-import {saveCurrentLayout, saveLayoutObject} from './workspaces/create';
-import {getAppToRestore, restoreApplication, restoreLayout} from './workspaces/restore';
-import {getAllLayoutNames, getLayout} from './workspaces/storage';
+import { SnapGroup } from './snapanddock/SnapGroup';
+import { SnapService } from './snapanddock/SnapService';
+import { SnapWindow, WindowIdentity } from './snapanddock/SnapWindow';
+import { win10Check } from './snapanddock/utils/platform';
+import { TabService } from './tabbing/TabService';
+import { saveCurrentLayout, saveLayoutObject } from './workspaces/create';
+import { getAppToRestore, restoreApplication, restoreLayout } from './workspaces/restore';
+import { getAllLayoutNames, getLayout } from './workspaces/storage';
 
-import {Provider} from 'hadouken-js-adapter/out/types/src/api/services/provider';
-import {Identity} from 'hadouken-js-adapter/out/types/src/identity';
+import { Provider } from 'hadouken-js-adapter/out/types/src/api/services/provider';
+import { Identity } from 'hadouken-js-adapter/out/types/src/identity';
 
 export let snapService: SnapService;
 export let tabService: TabService;
 export let providerChannel: Provider;
-declare const window: Window & {providerChannel: Provider; snapService: SnapService; tabService: TabService;};
+declare const window: Window & { providerChannel: Provider; snapService: SnapService; tabService: TabService; };
 
 fin.desktop.main(main);
 
@@ -23,7 +23,12 @@ async function registerService() {
         snapService.undock(identity);
     });
     providerChannel.register('deregister', (identity: WindowIdentity) => {
+        // Snapping
         snapService.deregister(identity);
+        // Tabbing
+        tabService.deregister(identity);
+        // S&R
+        // TODO pending implementation of deregister logic in S&D
     });
     providerChannel.register('explode', (identity: WindowIdentity) => {
         snapService.explodeGroup(identity);
@@ -34,10 +39,10 @@ async function registerService() {
     providerChannel.register('restoreLayout', restoreLayout);
     providerChannel.register('getAllLayoutNames', getAllLayoutNames);
     providerChannel.register('appReady', (payload: void, identity: Identity) => {
-        const {uuid} = identity;
+        const { uuid } = identity;
         const appToRestore = getAppToRestore(uuid);
         if (appToRestore) {
-            const {layoutApp, resolve} = appToRestore;
+            const { layoutApp, resolve } = appToRestore;
             restoreApplication(layoutApp, resolve);
         }
     });
